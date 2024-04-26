@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matched Details</title>
+    <style>
+        /* Your CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #donorDetails {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .donorDetail {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+
+        .donorDetail:last-child {
+            border-bottom: none;
+        }
+        .donorDetail h3 {
+            color: #333;
+        }
+
+        .donorDetail p {
+            margin: 5px 0;
+        }
+
+        .donorDetail p strong {
+            font-weight: bold;
+        }
+
+        .acceptButton {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .acceptButton:hover {
+            background-color: darkgreen;
+        }
+
+
+    </style>
+</head>
+<body>
+    <h2>Matched Donor Details</h2>
+    <div id="donorDetails"></div>
+
+    <script>
+        // Retrieve receiver details from localStorage
+        var receiverDetails = JSON.parse(localStorage.getItem('receiverDetails')) || {};
+        
+        // Retrieve donor details array from localStorage
+        var donorDetailsArray = JSON.parse(localStorage.getItem('donorDetailsArray')) || [];
+
+        // Filter donor details based on matching district and date
+        var matchedDonorDetails = donorDetailsArray.filter(function(donor) {
+            return donor.District === receiverDetails.District && donor.Date === receiverDetails.Date;
+        });
+
+        // Display matched donor details
+        var donorDetailsDiv = document.getElementById('donorDetails');
+        matchedDonorDetails.forEach(function(donor, index) {
+            var donorDetail = document.createElement('div');
+            donorDetail.innerHTML = `
+                <h3>Donor ${index + 1}</h3>
+                <p><strong>Food Availability:</strong> ${donor.foodAvailability}</p>
+                <p><strong>Location:</strong> ${donor.location}</p>
+                <p><strong>Address:</strong> ${donor.Address}</p>
+                <p><strong>District:</strong> ${donor.District}</p>
+                <p><strong>Date:</strong> ${donor.Date}</p>
+                <p><strong>Phone Number:</strong> ${donor.phoneNumber}</p>
+                <br>
+                <button class="acceptButton" data-index="${index}">Accept</button>
+            `;
+            donorDetailsDiv.appendChild(donorDetail);
+        });
+
+        // Add event listener to accept button
+        document.querySelectorAll('.acceptButton').forEach(button => {
+            button.addEventListener('click', function() {
+                var index = this.getAttribute('data-index');
+                var donorDetailsArray = JSON.parse(localStorage.getItem('donorDetailsArray')) || [];
+                donorDetailsArray[index].status = 'Accepted'; // Update status to 'Accepted'
+                localStorage.setItem('donorDetailsArray', JSON.stringify(donorDetailsArray));
+                alert('Accepted successfully.');
+            });
+        });
+    </script>
+</body>
+</html>

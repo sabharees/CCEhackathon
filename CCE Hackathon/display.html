@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Page</title>
+    <style>
+        /* Add your CSS styles here */
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .box {
+            width: 300px;
+            background-color: #f0f0f0;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* For positioning buttons */
+        }
+        .donor-image {
+            width: 100%;
+            max-height: 200px;
+            border-radius: 10px 10px 0 0;
+        }
+        .donor-details {
+            flex: 1;
+            width: 100%;
+            padding-top: 20px;
+        }
+        .action-button {
+            position: absolute;
+            bottom: 10px;
+            width: 30%;
+            height: 30px;
+            font-size: 70%;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .action-button.expired {
+            right: 10px;
+            background-color: red;
+        }
+        .action-button.other {
+            left: 10px;
+            background-color: green;
+        }
+        .expired.disabled {
+            opacity: 0.5; /* Add opacity to the expired button when disabled */
+            pointer-events: none; /* Disable pointer events to prevent clicking */
+        }
+        .disabled {
+    opacity: 0.5; /* Add opacity to the disabled buttons */
+    pointer-events: none; /* Disable pointer events to prevent clicking */
+}
+    </style>
+</head>
+<body>
+    <div class="container" id="donorContainer"></div>
+    <script>
+        // Retrieve donor details array from localStorage
+        var donorDetailsArray = JSON.parse(localStorage.getItem('donorDetailsArray')) || [];
+
+        // Display all donor details
+        var donorContainer = document.getElementById('donorContainer');
+        donorDetailsArray.forEach(function(donor, index) {
+            var box = document.createElement('div');
+            box.classList.add('box');
+
+            // Create image element
+            var image = document.createElement('img');
+            image.classList.add('donor-image');
+            // Assuming you have an image for each donor, replace 'image.png' with the actual path to the donor's image
+            image.src = 'image.jpg';
+            box.appendChild(image);
+
+            // Create donor details section
+            var detailsSection = document.createElement('div');
+            detailsSection.classList.add('donor-details');
+            detailsSection.innerHTML = `
+                <h2>Donor ${index + 1}</h2>
+                <p><strong>Food Availability:</strong> ${donor.foodAvailability}</p>
+                <p><strong>Location:</strong> ${donor.location}</p>
+                <p><strong>Address:</strong> ${donor.Address}</p>
+                <p><strong>District:</strong> ${donor.District}</p>
+                <p><strong>Date:</strong> ${donor.Date}</p>
+                <p><strong>Phone Number:</strong> ${donor.phoneNumber}</p><br>
+            `;
+            box.appendChild(detailsSection);
+
+            // Create action buttons
+            var expiredButton = document.createElement('button');
+            expiredButton.classList.add('action-button', 'expired');
+            expiredButton.innerText = 'Expired';
+            box.appendChild(expiredButton);
+
+            var otherButton = document.createElement('button');
+            otherButton.classList.add('action-button', 'other');
+            otherButton.innerText = 'Processing';
+            box.appendChild(otherButton);
+
+            // Check if the donor date is undefined or before today's date
+            if (!donor.Date || new Date(donor.Date) < new Date(new Date().setHours(0, 0, 0, 0))) {
+                expiredButton.classList.add('disabled'); // Add disabled class
+                otherButton.classList.add('disabled');
+                otherButton.innerText = 'Not accepted';
+            }
+            const authToken = 'TWuQE2EM-qjXuyUVmtmwL-uzhBEdMPUj';
+            const temperaturePin = 'V0';
+            const humidityPin = 'V1';
+            const lightLevelPin = 'V2';
+            const mq3ValuePin = 'V3';
+
+            const apiUrl = `https://blynk-cloud.com/${authToken}/get/${temperaturePin},${humidityPin},${lightLevelPin},${mq3ValuePin}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const temperature = parseFloat(data[0]);
+                const humidity = parseFloat(data[1]);
+                const lightLevel = parseFloat(data[2]);
+                const mq3Value = parseFloat(data[3]);
+            if (temperature < 25 || humidity < 70 || lightLevel < 200 || mq3Value > 200) {
+      // Reject the donators
+                otherButton.innerText ='Rejected';
+                otherButton.classList.add('disabled');
+                expiredButton.classList.add('disabled');
+            }
+            else{
+                otherButton.innerText ='Accepted';
+                expiredButton.classList.add('disabled');
+            }
+        })
+        
+        .catch(error => {
+        console.error('Error fetching data from cloud:', error);
+        // Handle the error, e.g., display an error message to the user
+    });
+        donorContainer.appendChild(box);
+    });
+    </script>
+    <!-- <script src="./blynk.js"> </script> -->
+</body>
+</html>

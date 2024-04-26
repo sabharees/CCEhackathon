@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receiver Page</title>
+    <style>
+        body{
+            background-image:url(https://png.pngtree.com/thumb_back/fw800/back_our/20190620/ourmid/pngtree-simple-food-delivery-meal-fashion-poster-background-yellow-back-image_158378.jpg) ;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }  
+       
+        h2{
+            text-align: center;
+        }
+
+    form {
+            justify-content: center;
+            text-align: center;
+            font-size: 25px;
+            border: 10px;
+            background-color: rgb(246, 251, 250);
+        }
+        button {
+            width: 20%;
+            height: 25px;
+            font-size: 80%;
+            font-weight: bold;
+        }
+        button:hover {
+           background-color: #a890df;
+        }
+        div{
+            margin: 25%;
+            padding: auto;
+            
+        }
+    </style>
+</head>
+<body>
+    <h2>Receiver Details</h2>
+    <form id="receiverForm">
+        <label>Address: <textarea id="address" cols="20" rows="1" required></textarea></label><br><br>
+        <label>District: <input type="text" id="receiverDistrict" name="receiverDistrict" required></label><br><br>
+        <label>Date: <input type="date" id="receiverDate" name="receiverDate" required></label><br><br>
+        <label>Phone Number: <input type="number" id="receiverPhoneNumber" name="receiverPhoneNumber" required></label><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById("receiverForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Get receiver details from form inputs
+            var address = document.getElementById("address").value;
+            var receiverDistrict = document.getElementById("receiverDistrict").value;
+            var receiverDate = document.getElementById("receiverDate").value;
+            var receiverPhoneNumber = document.getElementById("receiverPhoneNumber").value;
+
+            // Store receiver details in localStorage
+            localStorage.setItem('receiverDetails', JSON.stringify({ address: address, District: receiverDistrict, Date: receiverDate, phoneNumber: receiverPhoneNumber }));
+
+            // Redirect to matched details page
+            var donorDetailsArray = JSON.parse(localStorage.getItem('donorDetailsArray')) || [];
+            var matchedDonors = donorDetailsArray.filter(function(donor) {
+                return donor.District === receiverDistrict && donor.Date === receiverDate;
+            });
+            if (matchedDonors.length > 0) {
+                window.location.href = "matched.html";
+            } else {
+                alert("No matching donor details found.");
+            }
+        });
+    </script>
+</body>
+</html>
